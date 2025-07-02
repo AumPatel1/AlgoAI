@@ -3,7 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { twilioService } from "./services/twilio";
 import { openaiService } from "./services/openai";
-import { insertCallSchema, insertUserSchema } from "@shared/schema";
+import { 
+  insertCallSchema, 
+  insertUserSchema,
+  insertPathwaySchema
+} from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -558,6 +562,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("OpenAI test error:", error);
       res.status(500).json({ message: "OpenAI connection failed", error: error.message });
+    }
+  });
+
+  // Pathway Endpoints
+  app.get("/api/pathways", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const pathways = await storage.getPathwaysByUser(req.session.userId);
+      res.json({ pathways });
+    } catch (error) {
+      console.error("Get pathways error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/pathways", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const pathwayData = insertPathwaySchema.parse(req.body);
+      
+      const pathway = await storage.createPathway({
+        ...pathwayData,
+        userId: req.session.userId,
+      });
+
+      res.status(201).json({ pathway });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Create pathway error:", error);
+      res.status(500).json({ message: "Failed to create pathway", error: error.message });
+    }
+  });
+
+  app.get("/api/pathways/:id", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const pathwayId = parseInt(req.params.id);
+      const pathway = await storage.getPathway(pathwayId);
+      
+      if (!pathway || pathway.userId !== req.session.userId) {
+        return res.status(404).json({ message: "Pathway not found" });
+      }
+      
+      res.json({ pathway });
+    } catch (error) {
+      console.error("Get pathway error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.put("/api/pathways/:id", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const pathwayId = parseInt(req.params.id);
+      const pathway = await storage.getPathway(pathwayId);
+
+      if (!pathway || pathway.userId !== req.session.userId) {
+        return res.status(404).json({ message: "Pathway not found" });
+      }
+
+      const pathwayData = insertPathwaySchema.partial().parse(req.body);
+
+      const updatedPathway = await storage.updatePathway(pathwayId, pathwayData);
+
+      res.json({ pathway: updatedPathway });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Update pathway error:", error);
+      res.status(500).json({ message: "Failed to update pathway", error: error.message });
+    }
+  });
+
+  app.delete("/api/pathways/:id", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const pathwayId = parseInt(req.params.id);
+      const pathway = await storage.getPathway(pathwayId);
+
+      if (!pathway || pathway.userId !== req.session.userId) {
+        return res.status(404).json({ message: "Pathway not found" });
+      }
+
+      await storage.deletePathway(pathwayId);
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Delete pathway error:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 

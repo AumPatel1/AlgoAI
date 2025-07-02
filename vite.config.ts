@@ -30,7 +30,7 @@ export default defineConfig({
   },
   server: {
     fs: {
-      strict: true,
+      strict: false,
       deny: ["**/.*"],
     },
   },

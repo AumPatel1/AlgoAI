@@ -10,6 +10,11 @@ import SendCall from "@/pages/send-call";
 import CallLogs from "@/pages/call-logs";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
+import Home from "@/pages/home";
+import ComingSoon from "@/pages/coming-soon";
+import Pathways from "@/pages/pathways";
+import PathwayEditor from "@/pages/pathway-editor";
+import Documentation from "@/pages/documentation";
 import { useEffect } from "react";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -40,15 +45,15 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   return <Component />;
 }
 
-function PublicRoute({ component: Component }: { component: React.ComponentType }) {
+function PublicRoute({ component: Component, restricted = false }: { component: React.ComponentType, restricted?: boolean }) {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isLoading && user) {
+    if (!isLoading && user && restricted) {
       setLocation("/dashboard");
     }
-  }, [user, isLoading, setLocation]);
+  }, [user, isLoading, setLocation, restricted]);
 
   if (isLoading) {
     return (
@@ -67,12 +72,22 @@ function PublicRoute({ component: Component }: { component: React.ComponentType 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
+      <Route path="/" component={() => <PublicRoute component={Home} />} />
       <Route path="/dashboard" component={() => <ProtectedRoute component={Dashboard} />} />
       <Route path="/dashboard/send-call" component={() => <ProtectedRoute component={SendCall} />} />
       <Route path="/dashboard/call-logs" component={() => <ProtectedRoute component={CallLogs} />} />
-      <Route path="/login" component={() => <PublicRoute component={Login} />} />
-      <Route path="/signup" component={() => <PublicRoute component={Signup} />} />
+      <Route path="/dashboard/analytics" component={() => <ProtectedRoute component={ComingSoon} />} />
+      <Route path="/dashboard/pathways" component={() => <ProtectedRoute component={Pathways} />} />
+      <Route path="/dashboard/pathways/new" component={() => <ProtectedRoute component={PathwayEditor} />} />
+      <Route path="/dashboard/pathways/edit/:id" component={() => <ProtectedRoute component={PathwayEditor} />} />
+      <Route path="/dashboard/tools" component={() => <ProtectedRoute component={ComingSoon} />} />
+      <Route path="/dashboard/billing" component={() => <ProtectedRoute component={ComingSoon} />} />
+      <Route path="/dashboard/voices" component={() => <ProtectedRoute component={ComingSoon} />} />
+      <Route path="/dashboard/infrastructure" component={() => <ProtectedRoute component={ComingSoon} />} />
+      <Route path="/dashboard/addons" component={() => <ProtectedRoute component={ComingSoon} />} />
+      <Route path="/dashboard/docs" component={() => <ProtectedRoute component={Documentation} />} />
+      <Route path="/login" component={() => <PublicRoute component={Login} restricted />} />
+      <Route path="/signup" component={() => <PublicRoute component={Signup} restricted />} />
       <Route component={NotFound} />
     </Switch>
   );

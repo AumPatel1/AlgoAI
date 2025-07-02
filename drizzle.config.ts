@@ -1,14 +1,21 @@
-import { defineConfig } from "drizzle-kit";
+import "dotenv/config";
+import type { Config } from "drizzle-kit";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL, ensure the database is provisioned");
+// Check for all required environment variables
+if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
+  throw new Error("Missing required database environment variables");
 }
 
-export default defineConfig({
-  out: "./migrations",
+export default {
   schema: "./shared/schema.ts",
+  out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL,
+    host: process.env.DB_HOST,
+    port: 5432,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    ssl: true,
   },
-});
+} satisfies Config;

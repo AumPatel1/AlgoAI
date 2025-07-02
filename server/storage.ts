@@ -1,4 +1,8 @@
-import { users, calls, callEvents, type User, type InsertUser, type Call, type InsertCall, type CallEvent, type InsertCallEvent } from "@shared/schema";
+import { users, calls, callEvents, pathways, type User, type InsertUser, type Call, type InsertCall, type CallEvent, type InsertCallEvent, type Pathway, type InsertPathway } from "@shared/schema";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import { eq } from "drizzle-orm";
+import * as schema from "@shared/schema";
 
 export interface IStorage {
   // User methods
@@ -19,23 +23,34 @@ export interface IStorage {
   // Call event methods
   createCallEvent(event: InsertCallEvent): Promise<CallEvent>;
   getCallEvents(callId: number): Promise<CallEvent[]>;
+
+  // Pathway methods
+  createPathway(pathway: InsertPathway & { userId: number }): Promise<Pathway>;
+  getPathway(id: number): Promise<Pathway | undefined>;
+  getPathwaysByUser(userId: number): Promise<Pathway[]>;
+  updatePathway(id: number, updates: Partial<Pathway>): Promise<Pathway | undefined>;
+  deletePathway(id: number): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
+class MemStorage implements IStorage {
   private users: Map<number, User>;
   private calls: Map<number, Call>;
   private callEvents: Map<number, CallEvent>;
+  private pathways: Map<number, Pathway>;
   private currentUserId: number;
   private currentCallId: number;
   private currentEventId: number;
+  private currentPathwayId: number;
 
   constructor() {
     this.users = new Map();
     this.calls = new Map();
     this.callEvents = new Map();
+    this.pathways = new Map();
     this.currentUserId = 1;
     this.currentCallId = 1;
     this.currentEventId = 1;
+    this.currentPathwayId = 1;
 
     // Create a demo user
     this.createUser({
@@ -156,6 +171,187 @@ export class MemStorage implements IStorage {
       .filter((event) => event.callId === callId)
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   }
+
+  async createPathway(pathwayData: InsertPathway & { userId: number }): Promise<Pathway> {
+    const id = this.currentPathwayId++;
+    const pathway: Pathway = {
+      ...pathwayData,
+      id,
+      description: pathwayData.description ?? null,
+      nodes: pathwayData.nodes ?? [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.pathways.set(id, pathway);
+    return pathway;
+  }
+
+  async getPathway(id: number): Promise<Pathway | undefined> {
+    return this.pathways.get(id);
+  }
+
+  async getPathwaysByUser(userId: number): Promise<Pathway[]> {
+    return Array.from(this.pathways.values())
+      .filter((pathway) => pathway.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async updatePathway(id: number, updates: Partial<Pathway>): Promise<Pathway | undefined> {
+    const pathway = this.pathways.get(id);
+    if (pathway) {
+      const updatedPathway = { ...pathway, ...updates, updatedAt: new Date() };
+      this.pathways.set(id, updatedPathway);
+      return updatedPathway;
+    }
+    return undefined;
+  }
+
+  async deletePathway(id: number): Promise<void> {
+    this.pathways.delete(id);
+  }
 }
 
-export const storage = new MemStorage();
+class DbStorage implements IStorage {
+  private db;
+
+  constructor() {
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL, ensure the database is provisioned");
+    }
+    const sql = neon(process.env.DATABASE_URL);
+    this.db = drizzle(sql, { schema });
+  }
+
+  async getUser(id: number) {
+    return this.db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.id, id),
+    });
+  }
+
+  async getUserByUsername(username: string) {
+    return this.db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.username, username),
+    });
+  }
+
+  async getUserByEmail(email: string) {
+    return this.db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.email, email),
+    });
+  }
+
+  async createUser(user: InsertUser) {
+    const [newUser] = await this.db
+      .insert(schema.users)
+      .values(user)
+      .returning();
+    return newUser;
+  }
+
+  async updateUserCredits(userId: number, credits: number) {
+    await this.db
+      .update(schema.users)
+      .set({ credits })
+      .where(eq(schema.users.id, userId));
+  }
+
+  async createCall(call: Omit<InsertCall, 'userId'> & { userId: number }) {
+    const [newCall] = await this.db
+      .insert(schema.calls)
+      .values(call)
+      .returning();
+    return newCall;
+  }
+
+  async getCall(id: number) {
+    return this.db.query.calls.findFirst({
+      where: (calls, { eq }) => eq(calls.id, id),
+    });
+  }
+  
+  async getCallsByUser(userId: number, limit: number) {
+    return this.db.query.calls.findMany({
+      where: (calls, { eq }) => eq(calls.userId, userId),
+      orderBy: (calls, { desc }) => [desc(calls.startedAt)],
+      limit,
+    });
+  }
+
+  async getActiveCalls(userId: number) {
+    return this.db.query.calls.findMany({
+      where: (calls, { eq, and, inArray }) => and(
+        eq(calls.userId, userId),
+        inArray(calls.status, ['in-progress', 'ringing'])
+      )
+    })
+  }
+
+  async getCallByTwilioSid(twilioSid: string) {
+    return this.db.query.calls.findFirst({
+      where: (calls, { eq }) => eq(calls.twilioCallSid, twilioSid),
+    });
+  }
+
+  async updateCall(id: number, updates: Partial<Call>) {
+    const [updatedCall] = await this.db
+      .update(schema.calls)
+      .set(updates)
+      .where(eq(schema.calls.id, id))
+      .returning();
+    return updatedCall;
+  }
+
+  async createCallEvent(event: InsertCallEvent) {
+    const [newEvent] = await this.db.insert(schema.callEvents).values(event).returning();
+    return newEvent;
+  }
+
+  async getCallEvents(callId: number) {
+    return this.db.query.callEvents.findMany({
+      where: (events, { eq }) => eq(events.callId, callId),
+      orderBy: (events, { asc }) => [asc(events.timestamp)],
+    });
+  }
+
+  async createPathway(pathway: InsertPathway & { userId: number }): Promise<Pathway> {
+    const [newPathway] = await this.db
+      .insert(schema.pathways)
+      .values(pathway)
+      .returning();
+    return newPathway;
+  }
+
+  async getPathway(id: number): Promise<Pathway | undefined> {
+    return this.db.query.pathways.findFirst({
+      where: (pathways, { eq }) => eq(pathways.id, id),
+    });
+  }
+
+  async getPathwaysByUser(userId: number): Promise<Pathway[]> {
+    return this.db.query.pathways.findMany({
+      where: (pathways, { eq }) => eq(pathways.userId, userId),
+      orderBy: (pathways, { desc }) => [desc(pathways.createdAt)],
+    });
+  }
+
+  async updatePathway(id: number, updates: Partial<Pathway>): Promise<Pathway | undefined> {
+    const [updatedPathway] = await this.db
+      .update(schema.pathways)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(schema.pathways.id, id))
+      .returning();
+    return updatedPathway;
+  }
+
+  async deletePathway(id: number): Promise<void> {
+    await this.db.delete(schema.pathways).where(eq(schema.pathways.id, id));
+  }
+}
+
+let storage: IStorage;
+
+if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+  storage = new DbStorage();
+} else {
+  storage = new MemStorage();
+}

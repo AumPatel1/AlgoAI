@@ -39,6 +39,16 @@ export const callEvents = pgTable("call_events", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+export const pathways = pgTable("pathways", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  nodes: jsonb("nodes").default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -59,9 +69,17 @@ export const insertCallEventSchema = createInsertSchema(callEvents).pick({
   eventData: true,
 });
 
+export const insertPathwaySchema = createInsertSchema(pathways).pick({
+  name: true,
+  description: true,
+  nodes: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertCall = z.infer<typeof insertCallSchema>;
 export type Call = typeof calls.$inferSelect;
 export type InsertCallEvent = z.infer<typeof insertCallEventSchema>;
 export type CallEvent = typeof callEvents.$inferSelect;
+export type InsertPathway = z.infer<typeof insertPathwaySchema>;
+export type Pathway = typeof pathways.$inferSelect;
