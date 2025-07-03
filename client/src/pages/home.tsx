@@ -30,8 +30,7 @@ function Navbar() {
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center">
             <div className="text-2xl font-bold">
-              <span className="algo-gradient-text">Algo</span>
-              <span className="text-white">®</span>
+              <span className="algo-gradient-text">AlgoAI</span>
             </div>
           </Link>
           <div className="hidden md:flex items-center space-x-8">
@@ -58,18 +57,11 @@ function Navbar() {
                 </Button>
               </>
             ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" className="text-white hover:text-gray-300">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/signup">
-                  <Button className="bg-white text-black hover:bg-gray-200 transition-all duration-200">
-                    Talk to sales
-                  </Button>
-                </Link>
-              </>
+              <Link href="/login">
+                <Button variant="ghost" className="text-white hover:text-gray-300">
+                  Sign In
+                </Button>
+              </Link>
             )}
           </div>
         </div>
@@ -329,8 +321,8 @@ function CallExamples() {
     <section id="resources" className="py-24 bg-gray-100 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-5xl font-bold leading-tight mb-16 text-black">
-          <span className="block">Every day, Algo handles millions</span>
-          <span className="block">of calls. Take a listen.</span>
+          <span className="block">Algo handles several</span>
+          <span className="block">calls. Take a listen.</span>
         </h2>
         
         {/* Call Examples Grid */}
@@ -395,12 +387,6 @@ function CallExamples() {
             </div>
           </div>
         </div>
-        
-        <Link href="/signup">
-          <Button className="bg-red-600 text-white hover:bg-red-700 transition-all duration-200">
-            Start for Free →
-          </Button>
-        </Link>
       </div>
     </section>
   );
@@ -470,14 +456,6 @@ function Infrastructure() {
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="text-center mt-16">
-        <Link href="/signup">
-          <Button className="bg-red-600 text-white hover:bg-red-700 transition-all duration-200">
-            Start for Free →
-          </Button>
-        </Link>
       </div>
     </section>
   );
@@ -610,7 +588,7 @@ function Footer() {
       
       {/* Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-4 gap-12">
+        <div className="grid md:grid-cols-3 gap-12">
           {/* Company Info */}
           <div>
             <div className="text-2xl font-bold mb-4">
@@ -629,15 +607,7 @@ function Footer() {
           <div>
             <h4 className="font-semibold text-white mb-6">Resources</h4>
             <ul className="space-y-4 text-[hsl(211,10%,64%)]">
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Blog</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">No Code</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Use Cases</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Appointment Booking</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Financial Intake</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Logistics ID Verification</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Case Studies</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Parade</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">MonsterRG</a></li>
+              <li><a href="#resources" className="hover:text-white transition-colors duration-200">Use Cases</a></li>
             </ul>
           </div>
           
@@ -645,58 +615,8 @@ function Footer() {
           <div>
             <h4 className="font-semibold text-white mb-6">Support</h4>
             <ul className="space-y-4 text-[hsl(211,10%,64%)]">
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Terms</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Cookie Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Algo Sub-processor List</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Data Processing Agreement</a></li>
+              <li><a href="tel:3435588325" className="hover:text-white transition-colors duration-200">Contact: 343-558-8325</a></li>
             </ul>
-          </div>
-          
-          {/* Company */}
-          <div>
-            <h4 className="font-semibold text-white mb-6">Company</h4>
-            <ul className="space-y-4 text-[hsl(211,10%,64%)]">
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Docs</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Careers</a></li>
-            </ul>
-            
-            {/* Social Icons */}
-            <div className="flex space-x-4 mt-8">
-              <a href="#" className="text-[hsl(211,10%,64%)] hover:text-white transition-colors duration-200">
-                <i className="fab fa-github text-xl"></i>
-              </a>
-              <a href="#" className="text-[hsl(211,10%,64%)] hover:text-white transition-colors duration-200">
-                <i className="fab fa-twitter text-xl"></i>
-              </a>
-              <a href="#" className="text-[hsl(211,10%,64%)] hover:text-white transition-colors duration-200">
-                <i className="fab fa-linkedin text-xl"></i>
-              </a>
-            </div>
-            
-            {/* Copyright */}
-            <p className="text-[hsl(211,10%,64%)] text-sm mt-8">Algo.ai, Inc. © 2024</p>
-            
-            {/* Compliance Badges */}
-            <div className="flex space-x-2 mt-4">
-              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold">SOC2</span>
-              </div>
-              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold">HIPAA</span>
-              </div>
-              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold">GDPR</span>
-              </div>
-            </div>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="bg-[hsl(0,0%,8.2%)] border-white/20 text-white hover:bg-white/10 mt-4"
-            >
-              Cookie Settings
-            </Button>
           </div>
         </div>
       </div>

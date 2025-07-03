@@ -123,14 +123,7 @@ export default function Login() {
               </Button>
             </form>
 
-            {/* Demo Account Info */}
-            <div className="mt-6 p-4 bg-[hsl(0,0%,8.2%)] rounded-lg border border-white/10">
-              <h4 className="text-sm font-medium text-white mb-2">Demo Account</h4>
-              <div className="text-xs text-[hsl(211,10%,64%)] space-y-1">
-                <div>Username: <span className="text-white font-mono">demo</span></div>
-                <div>Password: <span className="text-white font-mono">password</span></div>
-              </div>
-            </div>
+
 
             <div className="mt-6 text-center">
               <p className="text-sm text-[hsl(211,10%,64%)]">
