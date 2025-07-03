@@ -619,12 +619,12 @@ export default function SendCall() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="alloy">Alloy (Neutral)</SelectItem>
-                            <SelectItem value="echo">Echo (Male)</SelectItem>
-                            <SelectItem value="fable">Fable (British)</SelectItem>
-                            <SelectItem value="onyx">Onyx (Deep)</SelectItem>
-                            <SelectItem value="nova">Nova (Female)</SelectItem>
-                            <SelectItem value="shimmer">Shimmer (Soft)</SelectItem>
+                            <SelectItem value="alloy">Alloy (Neutral) - Neutral, professional tone</SelectItem>
+                            <SelectItem value="echo">Echo (Male) - Male, clear and articulate</SelectItem>
+                            <SelectItem value="fable">Fable (British) - British accent, sophisticated</SelectItem>
+                            <SelectItem value="onyx">Onyx (Deep) - Deep, authoritative voice</SelectItem>
+                            <SelectItem value="nova">Nova (Female) - Female, warm and friendly</SelectItem>
+                            <SelectItem value="shimmer">Shimmer (Soft) - Soft, gentle tone</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>

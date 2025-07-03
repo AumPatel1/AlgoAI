@@ -15,6 +15,7 @@ import ComingSoon from "@/pages/coming-soon";
 import Pathways from "@/pages/pathways";
 import PathwayEditor from "@/pages/pathway-editor";
 import Documentation from "@/pages/documentation";
+import Voices from "@/pages/voices";
 import { useEffect } from "react";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -82,7 +83,7 @@ function Router() {
       <Route path="/dashboard/pathways/edit/:id" component={() => <ProtectedRoute component={PathwayEditor} />} />
       <Route path="/dashboard/tools" component={() => <ProtectedRoute component={ComingSoon} />} />
       <Route path="/dashboard/billing" component={() => <ProtectedRoute component={ComingSoon} />} />
-      <Route path="/dashboard/voices" component={() => <ProtectedRoute component={ComingSoon} />} />
+      <Route path="/dashboard/voices" component={() => <ProtectedRoute component={Voices} />} />
       <Route path="/dashboard/infrastructure" component={() => <ProtectedRoute component={ComingSoon} />} />
       <Route path="/dashboard/addons" component={() => <ProtectedRoute component={ComingSoon} />} />
       <Route path="/dashboard/docs" component={() => <ProtectedRoute component={Documentation} />} />
