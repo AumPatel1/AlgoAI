@@ -85,7 +85,6 @@ class MemStorage implements IStorage {
       credits: 1000,
       twilioAccountSid: null,
       twilioAuthToken: null,
-      twilioPhoneNumber: null,
       openaiApiKey: null,
       createdAt: new Date(),
     };
@@ -340,7 +339,8 @@ class DbStorage implements IStorage {
 }
 
 function createStorage(): IStorage {
-  if (process.env.DATABASE_URL) {
+  // In serverless environments like Vercel, always use memory storage unless explicitly configured
+  if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL && process.env.USE_DATABASE === 'true') {
     try {
       return new DbStorage();
     } catch (error) {

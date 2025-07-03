@@ -60,7 +60,7 @@ export class TwilioService {
       };
     } catch (error) {
       console.error('Twilio call error:', error);
-      throw new Error(`Failed to make call: ${error.message}`);
+      throw new Error(`Failed to make call: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -77,7 +77,7 @@ export class TwilioService {
       };
     } catch (error) {
       console.error('Twilio fetch call error:', error);
-      throw new Error(`Failed to fetch call status: ${error.message}`);
+      throw new Error(`Failed to fetch call status: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -94,7 +94,7 @@ export class TwilioService {
       };
     } catch (error) {
       console.error('Twilio end call error:', error);
-      throw new Error(`Failed to end call: ${error.message}`);
+      throw new Error(`Failed to end call: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -118,7 +118,7 @@ export class TwilioService {
     try {
       const phoneNumbers = await this.getClient().incomingPhoneNumbers.list({ limit: 20 });
       
-      return phoneNumbers.map(number => ({
+      return phoneNumbers.map((number: any) => ({
         phoneNumber: number.phoneNumber,
         friendlyName: number.friendlyName || number.phoneNumber,
       }));
