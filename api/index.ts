@@ -7,7 +7,7 @@ import {
   insertCallSchema, 
   insertUserSchema,
   insertPathwaySchema
-} from "../shared/schema";
+} from "../shared/schema.js";
 import { z } from "zod";
 
 // Define Vercel types inline to avoid import issues
