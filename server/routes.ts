@@ -10,7 +10,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express): Promise<void> {
   
   // Authentication endpoints
   app.post("/api/auth/login", async (req, res) => {
@@ -672,6 +672,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const httpServer = createServer(app);
-  return httpServer;
+  // No need to create and return server in serverless environment
 }
