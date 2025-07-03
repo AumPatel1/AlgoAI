@@ -1,8 +1,8 @@
-import { users, calls, callEvents, pathways, type User, type InsertUser, type Call, type InsertCall, type CallEvent, type InsertCallEvent, type Pathway, type InsertPathway } from "../shared/schema";
+import { users, calls, callEvents, pathways, type User, type InsertUser, type Call, type InsertCall, type CallEvent, type InsertCallEvent, type Pathway, type InsertPathway } from "../shared/schema.js";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq } from "drizzle-orm";
-import * as schema from "../shared/schema";
+import * as schema from "../shared/schema.js";
 
 export interface IStorage {
   // User methods

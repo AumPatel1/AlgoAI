@@ -1,8 +1,8 @@
 import express from 'express';
 import session from 'express-session';
-import { storage } from './storage';
-import { twilioService } from './twilio';
-import { openaiService } from './openai';
+import { storage } from './storage.js';
+import { twilioService } from './twilio.js';
+import { openaiService } from './openai.js';
 import { 
   insertCallSchema, 
   insertUserSchema,
