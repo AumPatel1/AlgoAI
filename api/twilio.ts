@@ -1,14 +1,5 @@
 import twilio from 'twilio';
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID || 'ACf36b0f6d3bd4473ad1fdaf9c9d9bc5df';
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-
-if (!authToken) {
-  throw new Error('TWILIO_AUTH_TOKEN environment variable is required');
-}
-
-const client = twilio(accountSid, authToken);
-
 export interface CallOptions {
   to: string;
   from?: string;
@@ -28,15 +19,30 @@ export interface CallStatus {
 
 export class TwilioService {
   private defaultFromNumber: string;
+  private client: any = null;
 
   constructor() {
     // You'll need to set up a Twilio phone number or use the default
     this.defaultFromNumber = process.env.TWILIO_PHONE_NUMBER || '+15005550006'; // Twilio test number
   }
 
+  private getClient() {
+    if (!this.client) {
+      const accountSid = process.env.TWILIO_ACCOUNT_SID || 'ACf36b0f6d3bd4473ad1fdaf9c9d9bc5df';
+      const authToken = process.env.TWILIO_AUTH_TOKEN;
+
+      if (!authToken) {
+        throw new Error('TWILIO_AUTH_TOKEN environment variable is required');
+      }
+
+      this.client = twilio(accountSid, authToken);
+    }
+    return this.client;
+  }
+
   async makeCall(options: CallOptions): Promise<CallStatus> {
     try {
-      const call = await client.calls.create({
+      const call = await this.getClient().calls.create({
         to: options.to,
         from: options.from || this.defaultFromNumber,
         url: options.url,
@@ -60,7 +66,7 @@ export class TwilioService {
 
   async getCallStatus(callSid: string): Promise<CallStatus> {
     try {
-      const call = await client.calls(callSid).fetch();
+      const call = await this.getClient().calls(callSid).fetch();
       
       return {
         sid: call.sid,
@@ -77,7 +83,7 @@ export class TwilioService {
 
   async endCall(callSid: string): Promise<CallStatus> {
     try {
-      const call = await client.calls(callSid).update({ status: 'completed' });
+      const call = await this.getClient().calls(callSid).update({ status: 'completed' });
       
       return {
         sid: call.sid,
@@ -110,7 +116,7 @@ export class TwilioService {
 
   async getAvailableNumbers(): Promise<Array<{ phoneNumber: string; friendlyName: string }>> {
     try {
-      const phoneNumbers = await client.incomingPhoneNumbers.list({ limit: 20 });
+      const phoneNumbers = await this.getClient().incomingPhoneNumbers.list({ limit: 20 });
       
       return phoneNumbers.map(number => ({
         phoneNumber: number.phoneNumber,
