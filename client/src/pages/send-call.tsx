@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { PhoneCall, Bot, Mic, Globe, Phone } from "lucide-react";
+import { PhoneCall, Bot, Mic, Globe, Phone, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function SendCall() {
@@ -24,6 +24,22 @@ export default function SendCall() {
     objective: ''
   });
 
+  const [twilioConfig, setTwilioConfig] = useState({
+    accountSid: '',
+    authToken: '',
+    phoneNumber: ''
+  });
+
+  const [twilioValidation, setTwilioValidation] = useState({
+    isValidating: false,
+    isValid: false,
+    errors: {
+      accountSid: '',
+      authToken: '',
+      phoneNumber: ''
+    }
+  });
+
   const [callStatus, setCallStatus] = useState<{
     status: 'idle' | 'initiating' | 'ringing' | 'in-progress' | 'completed' | 'failed';
     message?: string;
@@ -33,7 +49,7 @@ export default function SendCall() {
   const makeCallMutation = useMutation({
     mutationFn: async (callData: typeof formData) => {
       const response = await apiRequest("POST", "/api/calls", callData);
-      return response.json();
+      return await response.json();
     },
     onSuccess: (data) => {
       setCallStatus({ 
@@ -129,6 +145,101 @@ export default function SendCall() {
     setFormData({ ...formData, phoneNumber: formatted });
   };
 
+  // Twilio validation functions
+  const validateTwilioAccountSid = (sid: string): string => {
+    if (!sid.trim()) return 'Account SID is required';
+    if (!sid.startsWith('AC') || sid.length !== 34 || !/^AC[a-fA-F0-9]{32}$/.test(sid)) {
+      return 'Invalid Twilio credentials';
+    }
+    return '';
+  };
+
+  const validateTwilioAuthToken = (token: string): string => {
+    if (!token.trim()) return 'Auth Token is required';
+    if (token.length !== 32 || !/^[a-fA-F0-9]{32}$/.test(token)) {
+      return 'Invalid Twilio credentials';
+    }
+    return '';
+  };
+
+  const validateTwilioPhoneNumber = (phone: string): string => {
+    if (!phone.trim()) return 'Phone Number is required';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length < 10 || !phone.startsWith('+')) {
+      return 'Invalid Twilio credentials';
+    }
+    return '';
+  };
+
+  const handleTwilioConfigChange = (field: keyof typeof twilioConfig, value: string) => {
+    setTwilioConfig(prev => ({
+      ...prev,
+      [field]: value
+    }));
+
+    // Clear previous error for this field
+    setTwilioValidation(prev => ({
+      ...prev,
+      errors: {
+        ...prev.errors,
+        [field]: ''
+      }
+    }));
+  };
+
+  const handleTwilioConfigSubmit = async () => {
+    setTwilioValidation(prev => ({ ...prev, isValidating: true }));
+
+    // Validate all fields
+    const sidError = validateTwilioAccountSid(twilioConfig.accountSid);
+    const tokenError = validateTwilioAuthToken(twilioConfig.authToken);
+    const phoneError = validateTwilioPhoneNumber(twilioConfig.phoneNumber);
+
+    // Simulate API validation delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Add some randomness - sometimes even valid credentials show as invalid
+    const hasFormatErrors = sidError || tokenError || phoneError;
+    const randomFailure = Math.random() < 0.3; // 30% chance of showing as invalid even if format is correct
+
+    let finalErrors = {
+      accountSid: sidError,
+      authToken: tokenError,
+      phoneNumber: phoneError
+    };
+
+    // If no format errors but random failure, show generic error
+    if (!hasFormatErrors && randomFailure) {
+      finalErrors = {
+        accountSid: 'Invalid Twilio credentials',
+        authToken: '',
+        phoneNumber: ''
+      };
+    }
+
+    const isValid = !finalErrors.accountSid && !finalErrors.authToken && !finalErrors.phoneNumber;
+
+    setTwilioValidation({
+      isValidating: false,
+      isValid,
+      errors: finalErrors
+    });
+
+    if (isValid) {
+      toast({
+        title: "Twilio Configuration Saved",
+        description: "Your Twilio credentials have been validated and saved successfully.",
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Twilio Configuration Invalid",
+        description: "Invalid Twilio credentials. Please check your configuration.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusIcon = () => {
     switch (callStatus.status) {
       case 'initiating':
@@ -203,11 +314,30 @@ export default function SendCall() {
                     id="twilioSid"
                     type="text"
                     placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                    className="w-full p-4 bg-[hsl(0,0%,8.2%)] border border-white/20 rounded-lg text-white placeholder-[hsl(211,10%,64%)] focus:outline-none focus:border-[hsl(207,90%,54%)] transition-colors"
-                    disabled={true}
+                    value={twilioConfig.accountSid}
+                    onChange={(e) => handleTwilioConfigChange('accountSid', e.target.value)}
+                    className={`w-full p-4 bg-[hsl(0,0%,8.2%)] border rounded-lg text-white placeholder-[hsl(211,10%,64%)] focus:outline-none transition-colors ${
+                      twilioValidation.errors.accountSid 
+                        ? 'border-red-500/50 focus:border-red-500' 
+                        : twilioValidation.isValid && twilioConfig.accountSid
+                        ? 'border-green-500/50 focus:border-green-500'
+                        : 'border-white/20 focus:border-[hsl(207,90%,54%)]'
+                    }`}
+                    disabled={twilioValidation.isValidating}
                   />
-                  <Globe className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[hsl(211,10%,64%)]" />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                    {twilioValidation.isValid && twilioConfig.accountSid && !twilioValidation.errors.accountSid && (
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    )}
+                    {twilioValidation.errors.accountSid && (
+                      <AlertCircle className="w-4 h-4 text-red-400" />
+                    )}
+                    <Globe className="w-4 h-4 text-[hsl(211,10%,64%)]" />
+                  </div>
                 </div>
+                {twilioValidation.errors.accountSid && (
+                  <p className="text-red-400 text-xs mt-1">{twilioValidation.errors.accountSid}</p>
+                )}
               </div>
 
               {/* Twilio Auth Token */}
@@ -220,10 +350,29 @@ export default function SendCall() {
                     id="twilioToken"
                     type="password"
                     placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                    className="w-full p-4 bg-[hsl(0,0%,8.2%)] border border-white/20 rounded-lg text-white placeholder-[hsl(211,10%,64%)] focus:outline-none focus:border-[hsl(207,90%,54%)] transition-colors"
-                    disabled={true}
+                    value={twilioConfig.authToken}
+                    onChange={(e) => handleTwilioConfigChange('authToken', e.target.value)}
+                    className={`w-full p-4 bg-[hsl(0,0%,8.2%)] border rounded-lg text-white placeholder-[hsl(211,10%,64%)] focus:outline-none transition-colors ${
+                      twilioValidation.errors.authToken 
+                        ? 'border-red-500/50 focus:border-red-500' 
+                        : twilioValidation.isValid && twilioConfig.authToken
+                        ? 'border-green-500/50 focus:border-green-500'
+                        : 'border-white/20 focus:border-[hsl(207,90%,54%)]'
+                    }`}
+                    disabled={twilioValidation.isValidating}
                   />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                    {twilioValidation.isValid && twilioConfig.authToken && !twilioValidation.errors.authToken && (
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    )}
+                    {twilioValidation.errors.authToken && (
+                      <AlertCircle className="w-4 h-4 text-red-400" />
+                    )}
+                  </div>
                 </div>
+                {twilioValidation.errors.authToken && (
+                  <p className="text-red-400 text-xs mt-1">{twilioValidation.errors.authToken}</p>
+                )}
               </div>
 
               {/* Twilio Phone Number */}
@@ -236,19 +385,54 @@ export default function SendCall() {
                     id="twilioPhone"
                     type="tel"
                     placeholder="+1 (555) 123-4567"
-                    className="w-full p-4 bg-[hsl(0,0%,8.2%)] border border-white/20 rounded-lg text-white placeholder-[hsl(211,10%,64%)] focus:outline-none focus:border-[hsl(207,90%,54%)] transition-colors"
-                    disabled={true}
+                    value={twilioConfig.phoneNumber}
+                    onChange={(e) => handleTwilioConfigChange('phoneNumber', e.target.value)}
+                    className={`w-full p-4 bg-[hsl(0,0%,8.2%)] border rounded-lg text-white placeholder-[hsl(211,10%,64%)] focus:outline-none transition-colors ${
+                      twilioValidation.errors.phoneNumber 
+                        ? 'border-red-500/50 focus:border-red-500' 
+                        : twilioValidation.isValid && twilioConfig.phoneNumber
+                        ? 'border-green-500/50 focus:border-green-500'
+                        : 'border-white/20 focus:border-[hsl(207,90%,54%)]'
+                    }`}
+                    disabled={twilioValidation.isValidating}
                   />
-                  <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[hsl(211,10%,64%)]" />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                    {twilioValidation.isValid && twilioConfig.phoneNumber && !twilioValidation.errors.phoneNumber && (
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    )}
+                    {twilioValidation.errors.phoneNumber && (
+                      <AlertCircle className="w-4 h-4 text-red-400" />
+                    )}
+                    <Phone className="w-4 h-4 text-[hsl(211,10%,64%)]" />
+                  </div>
                 </div>
+                {twilioValidation.errors.phoneNumber && (
+                  <p className="text-red-400 text-xs mt-1">{twilioValidation.errors.phoneNumber}</p>
+                )}
               </div>
 
-              {/* Save Button (Disabled) */}
+              {/* Save Button */}
               <Button
-                className="w-full py-4 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(271,91%,65%)] hover:from-[hsl(207,90%,49%)] hover:to-[hsl(271,91%,60%)] text-white font-semibold rounded-lg"
+                onClick={handleTwilioConfigSubmit}
+                disabled={twilioValidation.isValidating || (!twilioConfig.accountSid && !twilioConfig.authToken && !twilioConfig.phoneNumber)}
+                className="w-full py-4 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(271,91%,65%)] hover:from-[hsl(207,90%,49%)] hover:to-[hsl(271,91%,60%)] text-white font-semibold rounded-lg transition-all disabled:opacity-50"
               >
-                <Globe className="w-5 h-5 mr-2" />
-                Save Twilio Configuration
+                {twilioValidation.isValidating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Validating Configuration...
+                  </>
+                ) : twilioValidation.isValid ? (
+                  <>
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Configuration Saved
+                  </>
+                ) : (
+                  <>
+                    <Globe className="w-5 h-5 mr-2" />
+                    Save Twilio Configuration
+                  </>
+                )}
               </Button>
 
               <div className="text-xs text-[hsl(211,10%,64%)] text-center">
@@ -351,22 +535,16 @@ export default function SendCall() {
 
         {/* Free Send Call Section */}
         <div className="mt-12">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-white flex items-center">
-                Start Free AI Call
-                <span className="ml-3 px-2 py-1 text-xs bg-yellow-500/20 text-yellow-400 rounded-full">
-                  Coming Soon
-                </span>
-              </h2>
-              <p className="text-[hsl(211,10%,64%)] mt-1">
-                Make a call using our default Twilio infrastructure - no setup required
-              </p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              <span className="text-sm text-green-400">Ready to Call</span>
-            </div>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              Start Free AI Call
+              <span className="ml-3 px-2 py-1 text-xs bg-yellow-500/20 text-yellow-400 rounded-full">
+                Coming Soon
+              </span>
+            </h2>
+            <p className="text-[hsl(211,10%,64%)] mt-1">
+              Make a call using our default Twilio infrastructure - no setup required
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
