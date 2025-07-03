@@ -107,7 +107,7 @@ export default function CallLogs() {
             </p>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+            <Button variant="outline" className="border-[hsl(271,91%,65%)] bg-[hsl(271,91%,65%)]/10 text-[hsl(271,91%,65%)] hover:bg-[hsl(271,91%,65%)]/20 hover:border-[hsl(271,91%,60%)]">
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>

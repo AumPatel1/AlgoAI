@@ -28,16 +28,15 @@ interface DashboardLayoutProps {
 
 const sidebarItems = [
   { icon: Home, label: "Home", href: "/dashboard" },
-  { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
   { icon: Phone, label: "Call Logs", href: "/dashboard/call-logs" },
   { icon: PhoneCall, label: "Send Call", href: "/dashboard/send-call" },
   { icon: GitBranch, label: "Conversational Pathways", href: "/dashboard/pathways" },
-  { icon: Settings, label: "Tools", href: "/dashboard/tools" },
-  { icon: CreditCard, label: "Billing & Credits", href: "/dashboard/billing" },
-  { icon: Mic, label: "Voices", href: "/dashboard/voices" },
-  { icon: Server, label: "Infrastructure", href: "/dashboard/infrastructure" },
-  { icon: Plus, label: "Add Ons", href: "/dashboard/addons" },
   { icon: FileText, label: "Documentation", href: "/dashboard/docs" },
+  { icon: Settings, label: "Tools", href: "/dashboard/tools" },
+  { icon: Plus, label: "Add Ons", href: "/dashboard/addons" },
+  { icon: Mic, label: "Voices", href: "/dashboard/voices" },
+  { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
+  { icon: CreditCard, label: "Billing & Credits", href: "/dashboard/billing" },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -113,12 +112,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <h1 className="text-2xl font-bold text-white">Dashboard</h1>
               <div className="flex space-x-4">
                 <Link href="/dashboard/send-call">
-                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                  <Button className="bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(271,91%,65%)] hover:from-[hsl(207,90%,49%)] hover:to-[hsl(271,91%,60%)] text-white border-0">
                     Send Call
                   </Button>
                 </Link>
                 <Link href="/dashboard/pathways">
-                  <Button className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,49%)]">
+                  <Button className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,49%)] text-white">
                     Build Pathway
                   </Button>
                 </Link>

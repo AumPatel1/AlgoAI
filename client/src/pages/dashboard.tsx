@@ -169,7 +169,7 @@ export default function Dashboard() {
                 </Button>
               </Link>
               <Link href="/dashboard/call-logs">
-                <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10">
+                <Button variant="outline" className="w-full border-[hsl(207,90%,54%)] bg-[hsl(207,90%,54%)]/10 text-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,54%)]/20 hover:border-[hsl(207,90%,49%)]">
                   <Phone className="w-5 h-5 mr-2" />
                   View Call History
                 </Button>
@@ -214,7 +214,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-semibold text-white">Recent Calls</CardTitle>
               <Link href="/dashboard/call-logs">
-                <Button variant="ghost" className="text-[hsl(207,90%,54%)] hover:text-[hsl(207,90%,49%)]">
+                <Button variant="ghost" className="text-[hsl(207,90%,54%)] hover:text-[hsl(207,90%,49%)] hover:bg-[hsl(207,90%,54%)]/10 border border-[hsl(207,90%,54%)]/30 hover:border-[hsl(207,90%,54%)]">
                   View All
                 </Button>
               </Link>

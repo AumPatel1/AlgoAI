@@ -62,7 +62,7 @@ export default function Documentation() {
               Conversational Pathways
             </CardTitle>
           </CardHeader>
-          <CardContent className="prose prose-invert max-w-none prose-p:text-gray-300 prose-headings:text-white prose-pre:bg-[hsl(0,0%,8%)] prose-code:text-white">
+          <CardContent className="prose prose-invert max-w-none prose-p:text-gray-300 prose-headings:text-white prose-pre:bg-[hsl(0,0%,8%)] prose-pre:text-white prose-code:text-white prose-code:bg-[hsl(0,0%,8%)]">
             <p>
               "Conversational Pathways" are the heart of your AI agents. They are structured workflows that define how the AI should behave, what it should say, and what actions it can take at different points in the conversation.
             </p>

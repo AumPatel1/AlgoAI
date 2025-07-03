@@ -85,6 +85,7 @@ class MemStorage implements IStorage {
       credits: 1000,
       twilioAccountSid: null,
       twilioAuthToken: null,
+      twilioPhoneNumber: null,
       openaiApiKey: null,
       createdAt: new Date(),
     };
@@ -355,3 +356,5 @@ if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
 } else {
   storage = new MemStorage();
 }
+
+export { storage };

@@ -111,12 +111,12 @@ export default function PathwayEditor() {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
                   <Label htmlFor="name" className="text-gray-300">Name</Label>
-                  <Input id="name" {...register("name")} className="bg-transparent border-white/20" />
+                  <Input id="name" {...register("name")} className="bg-transparent border-white/20 text-white placeholder-gray-400" />
                   {errors.name && <p className="text-red-400 mt-1">{errors.name.message}</p>}
                 </div>
                 <div>
                   <Label htmlFor="description" className="text-gray-300">Description</Label>
-                  <Textarea id="description" {...register("description")} className="bg-transparent border-white/20" />
+                  <Textarea id="description" {...register("description")} className="bg-transparent border-white/20 text-white placeholder-gray-400" />
                   {errors.description && <p className="text-red-400 mt-1">{errors.description.message}</p>}
                 </div>
                 <div>
@@ -125,7 +125,7 @@ export default function PathwayEditor() {
                     id="nodes"
                     {...register("nodes")}
                     rows={15}
-                    className="font-mono bg-transparent border-white/20"
+                    className="font-mono bg-transparent border-white/20 text-white placeholder-gray-400"
                     defaultValue="[]"
                   />
                   {errors.nodes && <p className="text-red-400 mt-1">{errors.nodes.message}</p>}
