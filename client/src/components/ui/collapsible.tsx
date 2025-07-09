@@ -1,5 +1,5 @@
 "use client"
-
+//this is collapsible component .
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
 const Collapsible = CollapsiblePrimitive.Root
