@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'sk-proj-5NGOzeplZ4oMXagnG_yNZ5-cg2u3zTF_jl7AIZa_42DDl6tclxCFTm-Y0lWqHMLFQ68tqkhLlKT3BlbkFJqWA8KpPzhp2LZkcOMgjy8eDkT8YKX8tifbNYOEXAM67GVnVPbUHztcYb11ls9qsoEhNjFM3',
 });
-
+// this is the interface for the conversation message.
 export interface ConversationMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
